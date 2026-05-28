@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temapeo | Inteligencia Geoespacial</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom Animations */
+        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .slide-in-from-bottom-4 { animation: slideUp 0.5s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(1rem); } to { opacity: 1; transform: translateY(0); } }
+        
+        .zoom-in-95 { animation: zoomIn 0.5s ease-out forwards; }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* Range slider styling */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+
+        /* Hide scrollbar for clean horizontal scrolling */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Brand -->
+                <div class="flex items-center cursor-pointer space-x-2" onclick="navigateTo('home')">
+                    <div class="bg-emerald-500 p-2 rounded-lg">
+                        <i data-lucide="map-pin" class="text-slate-900 w-6 h-6"></i>
+                    </div>
+                    <span class="font-extrabold text-2xl tracking-tight">TeMapeo</span>
+                </div>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-6 lg:space-x-8 text-sm font-medium">
+                    <button onclick="navigateTo('home')" class="hover:text-emerald-400 transition-colors">Inicio</button>
+                    <button onclick="navigateTo('fleet')" class="hover:text-emerald-400 transition-colors">Equipos y Flota</button>
+                    <button onclick="navigateTo('simulator')" class="hover:text-emerald-400 transition-colors flex items-center"><i data-lucide="calculator" class="w-4 h-4 mr-1"></i> Calculadora</button>
+                    <button onclick="navigateTo('dashboard')" class="hover:text-emerald-400 transition-colors">Visor GIS</button>
+                    <button onclick="navigateTo('academy')" class="hover:text-emerald-400 transition-colors">Academia</button>
+                    <button onclick="navigateTo('about')" class="hover:text-emerald-400 transition-colors">Nosotros</button>
+                </div>
+                <!-- CTA -->
+                <div class="hidden sm:block">
+                    <button onclick="navigateTo('simulator')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold py-2 px-4 rounded-lg transition-colors flex items-center space-x-2 shadow-lg shadow-emerald-500/20">
+                        <span>Cotizar Ahora</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="w-full flex-grow">
+        
+        <!-- =========================================
+             1. HOME VIEW
+        ========================================= -->
+        <section id="view-home" class="view-section animate-in">
+            <!-- Hero Section -->
+            <div class="relative bg-slate-900 overflow-hidden">
+                <div class="absolute inset-0 opacity-20">
+                    <div class="w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-900 via-slate-900 to-slate-900"></div>
+                    <svg class="absolute w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                        <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(52, 211, 153, 0.15)" stroke-width="1"/></pattern></defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
+                </div>
+                
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-24 pb-32">
+                    <div class="text-center max-w-4xl mx-auto">
+                        <div class="inline-flex items-center space-x-2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-full mb-6 border border-emerald-500/30">
+                            <i data-lucide="crosshair" class="w-4 h-4"></i>
+                            <span class="text-sm font-semibold tracking-wide uppercase">Drones • Topografía • Agronomía</span>
+                        </div>
+                        <h1 class="text-5xl md:text-6xl font-extrabold text-white tracking-tight mb-8">
+                            Traducimos tu terreno a <br/>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                                decisiones exactas.
+                            </span>
+                        </h1>
+                        <p class="text-xl text-slate-300 mb-10 leading-relaxed">
+                            En <b>TeMapeo</b> capturamos la realidad con precisión milimétrica usando tecnología dron y la convertimos en reportes que optimizan tus recursos, agua y tiempo.
+                        </p>
+                        <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                            <button onclick="navigateTo('simulator')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold py-4 px-8 rounded-xl shadow-lg shadow-emerald-500/30 flex items-center space-x-3 transition-all transform hover:scale-105">
+                                <i data-lucide="calculator" class="w-5 h-5"></i>
+                                <span>Calculadora de Servicios</span>
+                            </button>
+                            <button onclick="navigateTo('fleet')" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold py-4 px-8 rounded-xl flex items-center space-x-3 transition-all">
+                                <i data-lucide="plane" class="w-5 h-5"></i>
+                                <span>Ver Nuestra Flota</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- El Método Temapeo (Paso a Paso) -->
+            <div class="bg-white py-24">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl font-bold text-slate-900 mb-4">¿Cómo trabajamos? El Método TeMapeo</h2>
+                        <p class="text-slate-600 max-w-2xl mx-auto">Una interacción transparente paso a paso, desde el primer contacto hasta que tomas la decisión basada en nuestros datos.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                        <!-- Connecting Line (Desktop) -->
+                        <div class="hidden md:block absolute top-12 left-[10%] right-[10%] h-1 bg-slate-100 z-0"></div>
+                        
+                        <!-- Step 1 -->
+                        <div class="relative z-10 flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 bg-slate-50 border-4 border-white shadow-xl rounded-full flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+                                <i data-lucide="message-square" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">1. Contacto y Cotización</h3>
+                            <p class="text-slate-600 text-sm">Usas nuestra calculadora online o conversamos. Definimos el objetivo (topografía, vigor vegetal, volumen) y te enviamos la propuesta formal.</p>
+                        </div>
+                        
+                        <!-- Step 2 -->
+                        <div class="relative z-10 flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 bg-slate-50 border-4 border-white shadow-xl rounded-full flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+                                <i data-lucide="plane-takeoff" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">2. Vuelo y Terreno</h3>
+                            <p class="text-slate-600 text-sm">Desplegamos el dron adecuado (LiDAR, RGB o Multiespectral) y equipos GNSS en tu terreno para capturar los datos brutos con alta precisión.</p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="relative z-10 flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 bg-slate-50 border-4 border-white shadow-xl rounded-full flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+                                <i data-lucide="cpu" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">3. Procesamiento IA</h3>
+                            <p class="text-slate-600 text-sm">Traducimos miles de fotos en ortomosaicos, modelos 3D o mapas de salud vegetal usando software fotogramétrico de última generación.</p>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="relative z-10 flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 bg-slate-50 border-4 border-white shadow-xl rounded-full flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+                                <i data-lucide="presentation" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">4. Entrega e Interpretación</h3>
+                            <p class="text-slate-600 text-sm">No te dejamos solo con un archivo pesado. Te entregamos un informe claro, acceso a nuestro Visor Web y una reunión de análisis de resultados.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================
+             2. FLOTA Y EQUIPOS VIEW
+        ========================================= -->
+        <section id="view-fleet" class="view-section hidden bg-slate-50 pb-24 animate-in">
+            <!-- Header -->
+            <div class="bg-slate-900 text-white py-16 px-4">
+                <div class="max-w-7xl mx-auto text-center">
+                    <h2 class="text-4xl font-extrabold mb-4">Nuestra Flota Tecnológica</h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto text-lg">No existe un dron mágico para todo. En TeMapeo asignamos el sensor exacto según el servicio que tu proyecto necesita.</p>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
+                <!-- Drones Grid -->
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i data-lucide="plane" class="text-emerald-500 mr-2"></i> Captura Aérea (Drones)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                    
+                    <!-- RGB -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                        <div class="h-40 bg-slate-100 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Visual RGB</div>
+                            <img src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500&q=80" alt="Drone RGB" class="w-full h-full object-cover mix-blend-multiply opacity-80">
+                        </div>
+                        <div class="p-6 flex-grow">
+                            <h4 class="text-lg font-bold mb-1">Dron Fotogramétrico RGB</h4>
+                            <p class="text-xs text-slate-400 mb-4 font-mono">Ej: Serie Mavic Enterprise / Phantom 4 RTK</p>
+                            <p class="text-sm text-slate-600 mb-4">Captura imágenes de alta resolución en el espectro visible (lo que ve el ojo humano) pero georreferenciadas con precisión RTK.</p>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Servicios asociados:</span>
+                                <ul class="mt-2 text-sm text-slate-700 space-y-1">
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Ortomosaicos de alta resolución</li>
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Topografía a cielo abierto (sin bosque)</li>
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Control de avance de obras 3D</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multispectral -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                        <div class="h-40 bg-slate-100 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute top-2 right-2 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded">Multiespectral</div>
+                            <img src="https://images.unsplash.com/photo-1521618755572-156ae0cdd74d?w=500&q=80" alt="Drone Agro" class="w-full h-full object-cover mix-blend-multiply opacity-80 filter sepia-[.3] hue-rotate-90">
+                        </div>
+                        <div class="p-6 flex-grow">
+                            <h4 class="text-lg font-bold mb-1">Dron Multiespectral</h4>
+                            <p class="text-xs text-slate-400 mb-4 font-mono">Ej: Mavic 3 Multispectral / P4 Multispectral</p>
+                            <p class="text-sm text-slate-600 mb-4">Ve más allá del ojo humano (Infrarrojo cercano, Red Edge) para detectar la actividad fotosintética y el vigor de las plantas.</p>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Servicios asociados:</span>
+                                <ul class="mt-2 text-sm text-slate-700 space-y-1">
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Agricultura de Precisión</li>
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Mapas de Índices (NDVI, NDRE)</li>
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Conteo de plantas y fallas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LiDAR -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                        <div class="h-40 bg-slate-100 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute top-2 right-2 bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded">Láser LiDAR</div>
+                            <div class="w-full h-full bg-slate-900 flex items-center justify-center relative">
+                                <div class="absolute inset-0" style="background-image: radial-gradient(circle, #a855f7 1px, transparent 1px); background-size: 10px 10px; opacity: 0.5;"></div>
+                                <i data-lucide="scan-line" class="text-purple-400 w-16 h-16 z-10"></i>
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow">
+                            <h4 class="text-lg font-bold mb-1">Dron con Sensor LiDAR</h4>
+                            <p class="text-xs text-slate-400 mb-4 font-mono">Ej: Matrice 350 RTK + Zenmuse L2</p>
+                            <p class="text-sm text-slate-600 mb-4">Emite millones de pulsos láser que penetran la vegetación para medir directamente la superficie del suelo bajo los árboles.</p>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Servicios asociados:</span>
+                                <ul class="mt-2 text-sm text-slate-700 space-y-1">
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Topografía bajo vegetación densa</li>
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Modelos Digitales de Terreno (MDT)</li>
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Inventario Forestal (Altura de dosel)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Termal -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                        <div class="h-40 bg-slate-100 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute top-2 right-2 bg-orange-100 text-orange-800 text-xs font-bold px-2 py-1 rounded">Radiométrico</div>
+                            <div class="w-full h-full bg-gradient-to-tr from-blue-700 via-yellow-500 to-red-600 flex items-center justify-center opacity-80">
+                                <i data-lucide="thermometer" class="text-white w-16 h-16 drop-shadow-md"></i>
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow">
+                            <h4 class="text-lg font-bold mb-1">Dron Térmico</h4>
+                            <p class="text-xs text-slate-400 mb-4 font-mono">Ej: Mavic 3 Thermal / Zenmuse H20T</p>
+                            <p class="text-sm text-slate-600 mb-4">Captura firmas de calor con precisión radiométrica. Ideal para inspecciones industriales y análisis de humedad en cultivos.</p>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Servicios asociados:</span>
+                                <ul class="mt-2 text-sm text-slate-700 space-y-1">
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Inspección de Plantas Solares</li>
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Estrés hídrico en agricultura</li>
+                                    <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-1"></i> Fugas térmicas en construcción</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Non-Drone Services -->
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center mt-12"><i data-lucide="satellite" class="text-blue-500 mr-2"></i> Servicios sin Drones (Topografía y Satélite)</h3>
+                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+                    <p class="text-slate-600 mb-8">Sabemos que el dron no siempre es la herramienta adecuada. Si hay restricciones de vuelo, zonas urbanas densas, o necesitas certificados legales específicos, TeMapeo ofrece servicios tradicionales y satelitales.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="flex">
+                            <div class="bg-slate-100 p-4 rounded-xl mr-4 h-fit">
+                                <i data-lucide="map-pin" class="w-8 h-8 text-slate-700"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold mb-2">Topografía Terrestre (GNSS / Estación Total)</h4>
+                                <p class="text-sm text-slate-600 mb-3">Medición de puntos exactos en el terreno utilizando receptores satelitales de grado topográfico (Rover RTK/PPK) y estaciones totales.</p>
+                                <ul class="text-sm text-slate-700 space-y-1">
+                                    <li class="flex"><i data-lucide="arrow-right" class="w-4 h-4 text-emerald-500 mr-2 mt-0.5 shrink-0"></i> <b>Subdivisiones y Loteos:</b> Planos certificados para inscripción en Bienes Nacionales o CBR.</li>
+                                    <li class="flex"><i data-lucide="arrow-right" class="w-4 h-4 text-emerald-500 mr-2 mt-0.5 shrink-0"></i> <b>Replanteo de Obras:</b> Marcar en terreno dónde construir según los planos arquitectónicos.</li>
+                                    <li class="flex"><i data-lucide="arrow-right" class="w-4 h-4 text-emerald-500 mr-2 mt-0.5 shrink-0"></i> <b>Puntos de Control Fotogramétrico (GCP):</b> Apoyo terrestre necesario para calibrar y certificar los vuelos de nuestros drones.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="flex">
+                            <div class="bg-slate-100 p-4 rounded-xl mr-4 h-fit">
+                                <i data-lucide="globe-2" class="w-8 h-8 text-slate-700"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold mb-2">Monitoreo Satelital</h4>
+                                <p class="text-sm text-slate-600 mb-3">Adquisición y procesamiento de imágenes de constelaciones satelitales (Sentinel, Planet, Maxar) para proyectos de escala macro.</p>
+                                <ul class="text-sm text-slate-700 space-y-1">
+                                    <li class="flex"><i data-lucide="arrow-right" class="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"></i> <b>Histórico de Vigor Vegetal:</b> Ver cómo se ha comportado un campo en los últimos 3 años antes de comprarlo.</li>
+                                    <li class="flex"><i data-lucide="arrow-right" class="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"></i> <b>Monitoreo Macro:</b> Análisis de cuencas hídricas o grandes extensiones forestales (>5.000 ha) donde el dron no es costo-eficiente.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================
+             3. SIMULATOR VIEW (Calculadora de Hectáreas)
+        ========================================= -->
+        <section id="view-simulator" class="view-section hidden max-w-4xl mx-auto px-4 py-12">
+            <div class="text-center mb-10 slide-in-from-bottom-4">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Simulador de Hectáreas</h2>
+                <p class="text-slate-600">Ingresa las dimensiones de tu predio y obtén un plan completo de vuelos, baterías y costos.</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="flex justify-between items-center mb-12 relative slide-in-from-bottom-4 px-4">
+                <div class="absolute left-4 right-4 top-1/2 transform -translate-y-1/2 h-1 bg-slate-200 -z-10 rounded-full"></div>
+                <div id="sim-progress-bar" class="absolute left-4 top-1/2 transform -translate-y-1/2 h-1 bg-emerald-500 -z-10 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                
+                <div id="sim-indicator-1" class="sim-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold border-4 transition-colors duration-300 bg-emerald-500 border-emerald-100 text-white">1</div>
+                <div id="sim-indicator-2" class="sim-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold border-4 transition-colors duration-300 bg-slate-100 border-white text-slate-400">2</div>
+                <div id="sim-indicator-3" class="sim-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold border-4 transition-colors duration-300 bg-slate-100 border-white text-slate-400">3</div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 slide-in-from-bottom-4">
+                
+                <!-- STEP 1: Dimensiones y Cultivo -->
+                <div id="sim-step-1" class="sim-step animate-in fade-in">
+                    <h3 class="text-xl font-bold mb-6 text-slate-800">1. Dimensiones y Cultivo</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Ancho del predio (metros)</label>
+                            <input type="number" id="sim-width" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 transition-colors" placeholder="Ej. 200" value="200" oninput="updateHaCalc()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Largo del predio (metros)</label>
+                            <input type="number" id="sim-length" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 transition-colors" placeholder="Ej. 300" value="300" oninput="updateHaCalc()">
+                        </div>
+                    </div>
+                    
+                    <div class="bg-emerald-50 text-emerald-800 text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center mb-8 border border-emerald-100">
+                        <i data-lucide="map" class="w-4 h-4 mr-2"></i> Área calculada: <span id="sim-ha-preview" class="ml-1">6.00 ha</span>
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="block text-sm font-semibold text-slate-700 mb-3">Tipo de cultivo</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <button onclick="selectCrop('Cerezos')" id="crop-Cerezos" class="crop-btn p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-sm font-semibold text-slate-600">Cerezos</button>
+                            <button onclick="selectCrop('Paltos')" id="crop-Paltos" class="crop-btn p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-sm font-semibold text-slate-600">Paltos</button>
+                            <button onclick="selectCrop('Kiwis')" id="crop-Kiwis" class="crop-btn p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-sm font-semibold text-slate-600">Kiwis</button>
+                            <button onclick="selectCrop('Cítricos')" id="crop-Cítricos" class="crop-btn p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-sm font-semibold text-slate-600">Cítricos</button>
+                            <button onclick="selectCrop('Viñedo')" id="crop-Viñedo" class="crop-btn p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-sm font-semibold text-slate-600">Viñedo</button>
+                            <button onclick="selectCrop('Otro')" id="crop-Otro" class="crop-btn p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-sm font-semibold text-slate-600">Otro</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
+                        <button id="btn-next-1" disabled onclick="changeSimStep(2)" class="bg-slate-900 text-white px-6 py-3 rounded-lg font-bold flex items-center disabled:opacity-50 hover:bg-slate-800 transition-colors">
+                            Continuar <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Vuelos -->
+                <div id="sim-step-2" class="sim-step hidden animate-in fade-in">
+                    <h3 class="text-xl font-bold mb-6 text-slate-800">2. Frecuencia y Plan de Vuelo</h3>
+                    
+                    <div class="mb-8">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Vuelos por temporada</label>
+                        <input type="number" id="sim-flights" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 transition-colors font-bold text-lg" value="4">
+                        <p class="text-xs text-slate-500 mt-2">Ej: Un vuelo mensual durante el período de mayor desarrollo fenológico.</p>
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="block text-sm font-semibold text-slate-700 mb-3">Tipo de vuelo</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button onclick="selectFlight('Multiespectral', 22000)" id="flight-Multiespectral" class="flight-btn p-4 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-left">
+                                <span class="block font-bold text-slate-800">Multiespectral</span>
+                                <span class="block text-xs text-slate-500 mt-1">Análisis NDVI, NDRE, Vigor vegetal.</span>
+                            </button>
+                            <button onclick="selectFlight('Topográfico RTK', 18000)" id="flight-Topográfico RTK" class="flight-btn p-4 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-left">
+                                <span class="block font-bold text-slate-800">Topográfico RTK</span>
+                                <span class="block text-xs text-slate-500 mt-1">Ortomosaicos de alta resolución visual.</span>
+                            </button>
+                            <button onclick="selectFlight('LiDAR', 45000)" id="flight-LiDAR" class="flight-btn p-4 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-left">
+                                <span class="block font-bold text-slate-800">LiDAR (Matrice 300/350)</span>
+                                <span class="block text-xs text-slate-500 mt-1">Penetración forestal, MDT exacto.</span>
+                            </button>
+                            <button onclick="selectFlight('Termográfico', 25000)" id="flight-Termográfico" class="flight-btn p-4 rounded-xl border-2 cursor-pointer transition-all border-slate-200 hover:border-emerald-300 text-left">
+                                <span class="block font-bold text-slate-800">Termográfico</span>
+                                <span class="block text-xs text-slate-500 mt-1">Estrés hídrico, fugas térmicas.</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-8">
+                        <button onclick="changeSimStep(1)" class="text-slate-500 font-bold px-6 py-3 hover:text-slate-800">Volver</button>
+                        <button id="btn-next-2" disabled onclick="calculatePlan()" class="bg-emerald-500 text-slate-900 px-6 py-3 rounded-lg font-bold flex items-center hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20 disabled:opacity-50">
+                            Calcular Plan <i data-lucide="calculator" class="w-5 h-5 ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Resultados -->
+                <div id="sim-step-3" class="sim-step hidden zoom-in-95">
+                    <h3 class="text-2xl font-bold text-slate-900 mb-6 text-center">Plan de Operación</h3>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+                        <div class="bg-slate-50 p-4 rounded-xl text-center border border-slate-200 shadow-sm">
+                            <p class="text-xs text-slate-500 font-semibold mb-1 uppercase tracking-wider">Hectáreas totales</p>
+                            <p class="text-xl font-bold text-slate-800" id="res-ha">0.00 ha</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl text-center border border-slate-200 shadow-sm">
+                            <p class="text-xs text-slate-500 font-semibold mb-1 uppercase tracking-wider">Tiempo por vuelo</p>
+                            <p class="text-xl font-bold text-slate-800" id="res-time">0 min</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl text-center border border-slate-200 shadow-sm md:col-span-1 col-span-2">
+                            <p class="text-xs text-slate-500 font-semibold mb-1 uppercase tracking-wider">Baterías por vuelo</p>
+                            <p class="text-xl font-bold text-slate-800" id="res-batt">0</p>
+                        </div>
+                        <div class="bg-emerald-50 p-6 rounded-xl text-center border border-emerald-200 col-span-2 md:col-span-3 shadow-md mt-2">
+                            <p class="text-sm text-emerald-800 font-bold mb-2 uppercase tracking-wider">Inversión estimada anual</p>
+                            <p class="text-4xl font-extrabold text-emerald-600 mb-2" id="res-cost">$0 CLP</p>
+                            <p class="text-xs text-emerald-700 font-medium bg-emerald-100 inline-block px-3 py-1 rounded-full">Referencial. Cotización final personalizada.</p>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Cotización -->
+                    <div class="border-t border-slate-200 pt-8 mt-4">
+                        <h4 class="text-xl font-bold text-slate-800 mb-4 flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-emerald-500 mr-2"></i> Cotizar este plan</h4>
+                        
+                        <form onsubmit="submitQuoteForm(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Nombre Completo</label>
+                                    <input type="text" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:border-emerald-500 transition-colors" placeholder="Ej. Juan Pérez">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Empresa / Campo</label>
+                                    <input type="text" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:border-emerald-500 transition-colors" placeholder="Nombre de la empresa">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Teléfono (WhatsApp)</label>
+                                    <input type="tel" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:border-emerald-500 transition-colors" placeholder="+56 9 ...">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico</label>
+                                    <input type="email" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:border-emerald-500 transition-colors" placeholder="correo@empresa.com">
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center pt-6">
+                                <button type="button" onclick="changeSimStep(2)" class="text-slate-500 text-sm font-bold hover:text-slate-800">Reconfigurar Plan</button>
+                                <button type="submit" class="bg-slate-900 text-white px-8 py-3 rounded-lg font-bold flex items-center hover:bg-slate-800 transition-colors shadow-lg">
+                                    Enviar Solicitud <i data-lucide="send" class="w-4 h-4 ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Success Message -->
+                        <div id="quote-success" class="hidden text-center py-8 bg-emerald-50 rounded-xl mt-4 border border-emerald-200">
+                            <i data-lucide="check-circle-2" class="w-16 h-16 text-emerald-500 mx-auto mb-4"></i>
+                            <h4 class="text-xl font-bold text-slate-900">¡Solicitud Enviada!</h4>
+                            <p class="text-emerald-700 mt-2">Un ingeniero de TeMapeo te contactará con la propuesta final.</p>
+                            <button onclick="changeSimStep(1); document.getElementById('quote-success').classList.add('hidden');" class="mt-6 text-slate-500 text-sm underline hover:text-slate-800 font-bold">Hacer un nuevo cálculo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================
+             4. DASHBOARD VIEW (Visor Interactivo + Subida)
+        ========================================= -->
+        <section id="view-dashboard" class="view-section hidden h-[calc(100vh-64px)] flex flex-col md:flex-row bg-slate-900 text-white overflow-hidden animate-in fade-in">
+            <!-- Sidebar Control Panel -->
+            <div class="w-full md:w-80 bg-slate-900 border-r border-slate-800 flex flex-col z-20 shadow-2xl relative">
+                <div class="p-6 border-b border-slate-800">
+                    <h2 class="text-xl font-bold flex items-center"><i data-lucide="monitor" class="text-emerald-500 w-6 h-6 mr-2"></i> Visor TeMapeo</h2>
+                    <p class="text-xs text-slate-400 mt-1">Sube una foto y prueba las capas</p>
+                </div>
+
+                <div class="p-6 flex-1 overflow-y-auto">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Capas de Datos</h3>
+                    <div class="space-y-3">
+                        <button onclick="setDashboardLayer('rgb')" id="btn-layer-rgb" class="dashboard-layer-btn w-full flex items-center justify-between p-3 rounded-lg border transition-all bg-slate-800 border-slate-600">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-blue-500 p-2 rounded text-white"><i data-lucide="image" class="w-4 h-4"></i></div>
+                                <span class="text-sm font-semibold">Ortomosaico RGB</span>
+                            </div>
+                            <div class="layer-indicator w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
+                        </button>
+                        
+                        <button onclick="setDashboardLayer('ndvi')" id="btn-layer-ndvi" class="dashboard-layer-btn w-full flex items-center justify-between p-3 rounded-lg border transition-all bg-transparent border-transparent hover:bg-slate-800/50">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-emerald-500 p-2 rounded text-white"><i data-lucide="leaf" class="w-4 h-4"></i></div>
+                                <span class="text-sm font-semibold">Mapa NDVI</span>
+                            </div>
+                            <div class="layer-indicator w-3 h-3 rounded-full bg-slate-700"></div>
+                        </button>
+
+                        <button onclick="setDashboardLayer('lidar')" id="btn-layer-lidar" class="dashboard-layer-btn w-full flex items-center justify-between p-3 rounded-lg border transition-all bg-transparent border-transparent hover:bg-slate-800/50">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-purple-500 p-2 rounded text-white"><i data-lucide="layers" class="w-4 h-4"></i></div>
+                                <span class="text-sm font-semibold">MDT LiDAR</span>
+                            </div>
+                            <div class="layer-indicator w-3 h-3 rounded-full bg-slate-700"></div>
+                        </button>
+
+                        <button onclick="setDashboardLayer('thermal')" id="btn-layer-thermal" class="dashboard-layer-btn w-full flex items-center justify-between p-3 rounded-lg border transition-all bg-transparent border-transparent hover:bg-slate-800/50">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-orange-500 p-2 rounded text-white"><i data-lucide="flame" class="w-4 h-4"></i></div>
+                                <span class="text-sm font-semibold">Mapa Térmico</span>
+                            </div>
+                            <div class="layer-indicator w-3 h-3 rounded-full bg-slate-700"></div>
+                        </button>
+                    </div>
+
+                    <!-- Caja de Subida de Archivos -->
+                    <div class="mt-8">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Procesa tu terreno</h3>
+                        <div id="kmz-dropzone" class="bg-slate-800/50 border border-slate-700 p-4 rounded-xl text-center border-dashed transition-all relative">
+                            <input type="file" id="kmz-file-input" accept=".kml,.kmz,.jpg,.jpeg,.png" class="hidden" onchange="handleKMZUpload(this.files)">
+                            
+                            <!-- Estado Default -->
+                            <div id="kmz-default-state">
+                                <i data-lucide="upload-cloud" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
+                                <p class="text-sm font-bold text-slate-200">Inserta tu Imagen / KML</p>
+                                <p class="text-xs text-slate-500 mt-1 mb-3">Formatos: .jpg, .png, .kmz</p>
+                                <button onclick="document.getElementById('kmz-file-input').click()" class="bg-slate-700 hover:bg-emerald-600 text-xs px-4 py-2 rounded font-semibold transition-colors cursor-pointer relative z-10 text-white">Examinar Archivos</button>
+                            </div>
+
+                            <!-- Estado Cargando -->
+                            <div id="kmz-loading-state" class="hidden py-2">
+                                <i data-lucide="loader-2" class="w-6 h-6 mx-auto mb-2 text-emerald-500 animate-spin"></i>
+                                <p class="text-sm font-bold text-emerald-400">Procesando archivo...</p>
+                                <p class="text-xs text-slate-400 mt-1">Generando capas con IA</p>
+                            </div>
+
+                            <!-- Estado Exitoso -->
+                            <div id="kmz-success-state" class="hidden py-2">
+                                <i data-lucide="check-circle-2" class="w-6 h-6 mx-auto mb-2 text-emerald-500"></i>
+                                <p class="text-sm font-bold text-slate-200 truncate px-2" id="kmz-file-name">foto.jpg</p>
+                                <p class="text-xs text-emerald-400 mt-1 font-semibold">¡Capas generadas!</p>
+                                <button onclick="resetKMZUpload()" class="text-xs text-slate-500 mt-3 underline hover:text-slate-300 relative z-10">Subir otro archivo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Map Area -->
+            <div class="flex-1 relative bg-slate-950 flex items-center justify-center overflow-hidden">
+                <!-- RGB LAYER -->
+                <div id="layer-rgb" class="map-layer absolute inset-0 transition-all duration-1000 bg-[url('https://images.unsplash.com/photo-1590682680695-02b1c4c1143c?w=1600&q=80')] bg-cover bg-center opacity-50 mix-blend-luminosity grayscale-[30%] sepia-[20%]"></div>
+                
+                <!-- NDVI LAYER -->
+                <div id="layer-ndvi" class="map-layer absolute inset-0 transition-opacity duration-1000 opacity-0">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-red-900/60 via-yellow-600/60 to-emerald-600/60 mix-blend-overlay z-10"></div>
+                    <div id="layer-ndvi-bg" class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1590682680695-02b1c4c1143c?w=1600&q=80')] bg-cover bg-center opacity-40 grayscale"></div>
+                </div>
+
+                <!-- LIDAR 3D LAYER -->
+                <div id="layer-lidar" class="map-layer absolute inset-0 transition-opacity duration-1000 bg-slate-950 opacity-0 z-0">
+                    <div class="absolute inset-0" style="background-image: radial-gradient(circle, #a855f7 1px, transparent 1px); background-size: 15px 15px; opacity: 0.5; transform: perspective(500px) rotateX(60deg) scale(2); mix-blend-screen; z-index: 5;"></div>
+                    <div id="layer-lidar-bg" class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1590682680695-02b1c4c1143c?w=1600&q=80')] bg-cover bg-center opacity-20 sepia invert z-1"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center bg-slate-900/80 px-6 py-4 rounded-xl border border-purple-500/30 backdrop-blur z-10">
+                        <i data-lucide="layers" class="text-purple-500 w-12 h-12 mx-auto mb-2 animate-pulse"></i>
+                        <p class="text-purple-300 font-mono text-sm uppercase tracking-widest">Modelo de Elevación</p>
+                    </div>
+                </div>
+
+                <!-- THERMAL LAYER -->
+                <div id="layer-thermal" class="map-layer absolute inset-0 transition-opacity duration-1000 opacity-0">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-700/80 via-yellow-500/80 to-red-600/80 mix-blend-overlay z-10"></div>
+                    <div id="layer-thermal-bg" class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1590682680695-02b1c4c1143c?w=1600&q=80')] bg-cover bg-center opacity-40 grayscale invert"></div>
+                </div>
+
+                <!-- Polígono IA Simulado (Aparece al subir archivo) -->
+                <div id="layer-uploaded-terrain" class="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none opacity-0 scale-110 transition-all duration-1000 ease-out">
+                    <svg class="w-3/4 h-3/4 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)] mb-4" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <polygon points="10,20 90,10 80,90 20,80" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4" class="animate-[pulse_3s_ease-in-out_infinite]" />
+                    </svg>
+                    <div class="absolute bg-slate-900/80 backdrop-blur-sm text-emerald-400 text-xs px-4 py-2 rounded-full border border-emerald-500/50 shadow-lg font-mono tracking-widest uppercase flex items-center">
+                        <i data-lucide="cpu" class="w-3 h-3 mr-2"></i> Área Escaneada
+                    </div>
+                </div>
+
+                <!-- Leyenda Superior -->
+                <div class="absolute inset-0 border border-slate-700/30 m-8 rounded-2xl pointer-events-none z-30">
+                    <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700 px-4 py-2 rounded-lg text-sm shadow-xl">
+                        <span id="active-layer-name" class="text-emerald-400 font-bold uppercase tracking-wider">Ortomosaico RGB</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================
+             5. ACADEMIA TEMAPEO VIEW 
+        ========================================= -->
+        <section id="view-academy" class="view-section hidden bg-slate-50 py-16 animate-in fade-in">
+            <div class="max-w-7xl mx-auto px-4">
+                
+                <div class="text-center mb-16 max-w-3xl mx-auto">
+                    <div class="inline-block bg-emerald-100 text-emerald-600 font-bold px-4 py-1 rounded-full text-sm mb-4">Certificación TeMapeo</div>
+                    <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Curso Gratuito: De la Foto al Dato Técnico</h2>
+                    <p class="text-lg text-slate-600">Nuestro objetivo es capacitarte. Aprende a interpretar entregables geoespaciales y traduce las "fotos bonitas" de los drones en lenguaje técnico y decisiones rentables para tu industria.</p>
+                </div>
+
+                <!-- Curso Timeline/Estructura -->
+                <div class="relative">
+                    <div class="absolute left-8 md:left-1/2 top-0 bottom-0 w-1 bg-emerald-200 transform md:-translate-x-1/2 z-0 rounded-full"></div>
+
+                    <!-- Modulo 1 -->
+                    <div class="relative z-10 flex flex-col md:flex-row items-center mb-16">
+                        <div class="md:w-1/2 md:pr-16 md:text-right w-full pl-24 md:pl-0">
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Módulo 1: Principiante</h3>
+                            <h4 class="text-xl text-emerald-600 font-semibold mb-3">El Píxel con Coordenadas</h4>
+                            <p class="text-slate-600 mb-4">Entiende la diferencia entre una foto de un dron de juguete y la fotogrametría. Qué es el GSD (resolución), cómo se solapan las imágenes y por qué necesitamos Puntos de Control Terrestre (GCPs).</p>
+                            <button class="bg-white border border-emerald-500 text-emerald-600 hover:bg-emerald-50 font-bold py-2 px-6 rounded-lg transition-colors shadow-sm">Iniciar Módulo 1</button>
+                        </div>
+                        <div class="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 w-16 h-16 bg-white border-4 border-emerald-500 rounded-full flex items-center justify-center font-bold text-xl text-emerald-500 shadow-xl z-20">1</div>
+                        <div class="md:w-1/2 md:pl-16 hidden md:block opacity-50">
+                            <img src="https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?w=400&q=80" class="rounded-xl grayscale" alt="Drone camera">
+                        </div>
+                    </div>
+
+                    <!-- Modulo 2 -->
+                    <div class="relative z-10 flex flex-col md:flex-row-reverse items-center mb-16">
+                        <div class="md:w-1/2 md:pl-16 text-left w-full pl-24 md:pl-16">
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Módulo 2: Intermedio</h3>
+                            <h4 class="text-xl text-emerald-600 font-semibold mb-3">Traduciendo Ortomosaicos y Elevaciones</h4>
+                            <p class="text-slate-600 mb-4">Aprende a leer Modelos Digitales de Terreno (MDT) vs Modelos de Superficie (MDS). Cómo interpretar curvas de nivel, calcular pendientes para riego y medir volúmenes de acopios correctamente.</p>
+                            <button class="bg-white border border-emerald-500 text-emerald-600 hover:bg-emerald-50 font-bold py-2 px-6 rounded-lg transition-colors shadow-sm"><i data-lucide="lock" class="inline w-4 h-4 mr-1"></i> Desbloquear Módulo</button>
+                        </div>
+                        <div class="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 w-16 h-16 bg-slate-200 border-4 border-white rounded-full flex items-center justify-center font-bold text-xl text-slate-400 shadow-lg z-20">2</div>
+                        <div class="md:w-1/2 md:pr-16 hidden md:block opacity-50 text-right">
+                             <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=400&q=80" class="rounded-xl grayscale ml-auto" alt="Topography map">
+                        </div>
+                    </div>
+
+                    <!-- Modulo 3 -->
+                    <div class="relative z-10 flex flex-col md:flex-row items-center">
+                        <div class="md:w-1/2 md:pr-16 md:text-right w-full pl-24 md:pl-0">
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Módulo 3: Experto</h3>
+                            <h4 class="text-xl text-emerald-600 font-semibold mb-3">La Ciencia Detrás del Espectro (LiDAR & Multi)</h4>
+                            <p class="text-slate-600 mb-4">Domina el lenguaje agrícola y forestal. Qué es la reflectancia, cómo interpretar falsos colores, mapas NDVI, estrés hídrico térmico y clasificación de nubes de puntos LiDAR bajo bosque denso.</p>
+                            <button class="bg-white border border-emerald-500 text-emerald-600 hover:bg-emerald-50 font-bold py-2 px-6 rounded-lg transition-colors shadow-sm"><i data-lucide="lock" class="inline w-4 h-4 mr-1"></i> Desbloquear Módulo</button>
+                        </div>
+                        <div class="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 w-16 h-16 bg-slate-200 border-4 border-white rounded-full flex items-center justify-center font-bold text-xl text-slate-400 shadow-lg z-20">3</div>
+                        <div class="md:w-1/2 md:pl-16 hidden md:block opacity-50">
+                             <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&q=80" class="rounded-xl grayscale" alt="Data analysis">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================
+             6. NOSOTROS VIEW (Acerca de TeMapeo)
+        ========================================= -->
+        <section id="view-about" class="view-section hidden bg-slate-900 text-white min-h-[calc(100vh-64px-300px)] py-24 animate-in fade-in">
+            <div class="max-w-6xl mx-auto px-4">
+                
+                <!-- NUEVO CONTENIDO SOLICITADO -->
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-extrabold mb-6 text-emerald-400">Acerca de TeMapeo</h2>
+                    <p class="text-xl text-slate-300 max-w-4xl mx-auto leading-relaxed mb-12">
+                        Somos un equipo de agricultura de precisión con sede en <b>Peumo, Región de O'Higgins</b>. Volamos drones certificados por la DGAC para transformar tu campo en datos accionables.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mb-16">
+                        <div class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 shadow-lg">
+                            <div class="bg-emerald-500/20 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                                <i data-lucide="target" class="text-emerald-400 w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-3">Nuestra Misión</h3>
+                            <p class="text-slate-300">Convertir cada vuelo de dron en decisiones agrícolas claras y oportunas, sin tecnicismos inútiles.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 shadow-lg">
+                            <div class="bg-emerald-500/20 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                                <i data-lucide="eye" class="text-emerald-400 w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-3">Nuestra Visión</h3>
+                            <p class="text-slate-300">Ser el aliado tecnológico de la fruticultura chilena, demostrando que la agricultura inteligente está al alcance de cada productor.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 shadow-lg">
+                            <div class="bg-emerald-500/20 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                                <i data-lucide="shield-check" class="text-emerald-400 w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-3">Nuestros Valores</h3>
+                            <p class="text-slate-300">Transparencia técnica, acompañamiento real y precisión científica en cada entregable que firmamos.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DIVISIONES ORIGINALES -->
+                <div class="bg-slate-800 border border-slate-700 rounded-3xl p-8 md:p-12 mb-16 shadow-2xl">
+                    <h3 class="text-2xl font-bold mb-8 text-center border-b border-slate-700 pb-4">Nuestras 3 Divisiones de Servicio</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-emerald-500/30 hover:border-emerald-500 transition-colors">
+                            <div class="bg-emerald-500/20 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                                <i data-lucide="tractor" class="text-emerald-400 w-6 h-6"></i>
+                            </div>
+                            <h4 class="text-xl font-bold mb-3 text-emerald-300">División Agro y Forestal</h4>
+                            <p class="text-sm text-slate-400 leading-relaxed">
+                                Liderada por agrónomos e ingenieros forestales. Nos enfocamos en la salud vegetal, el inventario maderero y la eficiencia hídrica. Hablamos en lenguaje de biomasa, dosel y riego.
+                            </p>
+                        </div>
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-blue-500/30 hover:border-blue-500 transition-colors">
+                            <div class="bg-blue-500/20 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                                <i data-lucide="hard-hat" class="text-blue-400 w-6 h-6"></i>
+                            </div>
+                            <h4 class="text-xl font-bold mb-3 text-blue-300">División Ingeniería y Obras</h4>
+                            <p class="text-sm text-slate-400 leading-relaxed">
+                                Formada por ingenieros civiles y geomáticos. Aportamos control volumétrico de precisión, seguimiento 3D de avance de obras y detección de anomalías térmicas industriales.
+                            </p>
+                        </div>
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-purple-500/30 hover:border-purple-500 transition-colors">
+                            <div class="bg-purple-500/20 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                                <i data-lucide="scroll-text" class="text-purple-400 w-6 h-6"></i>
+                            </div>
+                            <h4 class="text-xl font-bold mb-3 text-purple-300">División Topografía Legal</h4>
+                            <p class="text-sm text-slate-400 leading-relaxed">
+                                A cargo de topógrafos y geomensores certificados. Realizamos loteos, subdivisiones, rectificación de deslindes e inscripciones con responsabilidad legal y normativa vigente.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-12 mt-auto border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <div class="flex items-center space-x-2 mb-4">
+                    <i data-lucide="map-pin" class="text-emerald-500 w-6 h-6"></i>
+                    <span class="font-extrabold text-xl text-white tracking-tight">TeMapeo</span>
+                </div>
+                <p class="text-sm">Inteligencia geoespacial, drones y topografía para decisiones exactas y rentables.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4">Divisiones</h4>
+                <ul class="space-y-2 text-sm">
+                    <li>Agrícola / Forestal (Multiespectral/LiDAR)</li>
+                    <li>Ingeniería / Obras (RGB/Térmico)</li>
+                    <li>Topografía Legal (GNSS RTK)</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4">Plataforma</h4>
+                <ul class="space-y-2 text-sm">
+                    <li class="cursor-pointer hover:text-emerald-400" onclick="navigateTo('simulator')">Calculadora de Presupuesto</li>
+                    <li class="cursor-pointer hover:text-emerald-400" onclick="navigateTo('fleet')">Catálogo de Equipos</li>
+                    <li class="cursor-pointer hover:text-emerald-400" onclick="navigateTo('academy')">Curso Gratuito (Academia)</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4">Contacto Directo</h4>
+                <button onclick="navigateTo('simulator')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold w-full py-2 rounded-lg transition-colors text-sm mb-2">
+                    Solicitar Cotización
+                </button>
+                <p class="text-xs text-slate-500 text-center">contacto@temapeo.cl</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Inicializar Iconos
+        lucide.createIcons();
+
+        // ==========================================
+        // Navegación
+        // ==========================================
+        function navigateTo(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // Lógica de Calculadora / Simulador
+        // ==========================================
+        let simData = {
+            cropType: '',
+            flightName: '',
+            flightPrice: 0,
+            hectares: 6.00 // Default calculation
+        };
+
+        function updateHaCalc() {
+            let w = document.getElementById('sim-width').value;
+            let l = document.getElementById('sim-length').value;
+            if(w && l) {
+                simData.hectares = (w * l) / 10000;
+                document.getElementById('sim-ha-preview').innerText = simData.hectares.toFixed(2) + ' ha';
+            }
+        }
+
+        function selectCrop(cropName) {
+            simData.cropType = cropName;
+            document.querySelectorAll('.crop-btn').forEach(el => {
+                el.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                el.classList.add('border-slate-200', 'text-slate-600');
+            });
+            let btn = document.getElementById('crop-' + cropName);
+            btn.classList.remove('border-slate-200', 'text-slate-600');
+            btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+            
+            document.getElementById('btn-next-1').disabled = false;
+        }
+
+        function selectFlight(flightName, pricePerHa) {
+            simData.flightName = flightName;
+            simData.flightPrice = pricePerHa;
+            
+            document.querySelectorAll('.flight-btn').forEach(el => {
+                el.classList.remove('border-emerald-500', 'bg-emerald-50');
+                el.classList.add('border-slate-200');
+            });
+            let btn = document.getElementById('flight-' + flightName);
+            btn.classList.remove('border-slate-200');
+            btn.classList.add('border-emerald-500', 'bg-emerald-50');
+            
+            document.getElementById('btn-next-2').disabled = false;
+        }
+
+        function changeSimStep(step) {
+            if(step < 3) {
+                document.getElementById('quote-success').classList.add('hidden');
+                document.querySelector('#view-simulator form').style.display = 'block';
+            }
+            document.querySelectorAll('.sim-step').forEach(el => el.classList.add('hidden'));
+            document.getElementById('sim-step-' + step).classList.remove('hidden');
+
+            const barWidth = ((step - 1) / 2) * 100;
+            document.getElementById('sim-progress-bar').style.width = barWidth + '%';
+
+            [1, 2, 3].forEach(num => {
+                let indicator = document.getElementById('sim-indicator-' + num);
+                if (step >= num) {
+                    indicator.classList.add('bg-emerald-500', 'border-emerald-100', 'text-white');
+                    indicator.classList.remove('bg-slate-100', 'border-white', 'text-slate-400');
+                } else {
+                    indicator.classList.remove('bg-emerald-500', 'border-emerald-100', 'text-white');
+                    indicator.classList.add('bg-slate-100', 'border-white', 'text-slate-400');
+                }
+            });
+        }
+
+        const clpFormatter = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+
+        function calculatePlan() {
+            // Recoger numero de vuelos
+            let numFlights = document.getElementById('sim-flights').value || 1;
+            
+            // Cálculos Técnicos (Aproximados)
+            let timePerFlight = Math.round(simData.hectares * 4); // 4 min por ha aprox
+            let batteries = Math.ceil(timePerFlight / 25); // 1 bateria rinde ~25 min
+            if(batteries < 1) batteries = 1;
+            
+            // Calculo de Inversion Anual (Hectareas * PrecioVuelo * CantidadVuelos)
+            let totalCost = simData.hectares * simData.flightPrice * numFlights;
+
+            // Mostrar Resultados
+            document.getElementById('res-ha').innerText = simData.hectares.toFixed(2) + ' ha';
+            document.getElementById('res-time').innerText = timePerFlight + ' min';
+            document.getElementById('res-batt').innerText = batteries;
+            document.getElementById('res-cost').innerText = clpFormatter.format(totalCost) + ' CLP';
+
+            changeSimStep(3);
+        }
+
+        function submitQuoteForm(e) {
+            e.preventDefault();
+            document.querySelector('#view-simulator form').style.display = 'none';
+            document.getElementById('quote-success').classList.remove('hidden');
+        }
+
+        // ==========================================
+        // Dashboard / Visor GIS / Subida de Archivos
+        // ==========================================
+        function setDashboardLayer(layerId) {
+            const layersData = {
+                'rgb': { name: 'Ortomosaico RGB' },
+                'ndvi': { name: 'Índice NDVI (Vigor)' },
+                'lidar': { name: 'Modelo Elevación LiDAR' },
+                'thermal': { name: 'Mapa Térmico Radiométrico' }
+            };
+
+            document.querySelectorAll('.dashboard-layer-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'border-slate-600');
+                btn.classList.add('bg-transparent', 'border-transparent');
+                let indicator = btn.querySelector('.layer-indicator');
+                indicator.className = 'layer-indicator w-3 h-3 rounded-full bg-slate-700';
+            });
+
+            let activeBtn = document.getElementById('btn-layer-' + layerId);
+            activeBtn.classList.remove('bg-transparent', 'border-transparent');
+            activeBtn.classList.add('bg-slate-800', 'border-slate-600');
+            
+            let activeIndicator = activeBtn.querySelector('.layer-indicator');
+            activeIndicator.className = 'layer-indicator w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]';
+
+            document.querySelectorAll('.map-layer').forEach(layer => {
+                layer.classList.remove('opacity-50', 'opacity-100');
+                layer.classList.add('opacity-0');
+                if(layer.id === 'layer-lidar') layer.classList.replace('z-10', 'z-0');
+            });
+
+            let activeLayerMap = document.getElementById('layer-' + layerId);
+            if (layerId === 'rgb') {
+                activeLayerMap.classList.remove('opacity-0');
+                activeLayerMap.classList.add('opacity-50');
+            } else {
+                activeLayerMap.classList.remove('opacity-0');
+                activeLayerMap.classList.add('opacity-100');
+                if(layerId === 'lidar') activeLayerMap.classList.replace('z-0', 'z-10');
+            }
+
+            document.getElementById('active-layer-name').innerText = layersData[layerId].name;
+        }
+
+        function handleKMZUpload(files) {
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            
+            if (!['kml', 'kmz', 'jpg', 'jpeg', 'png'].includes(ext)) {
+                alert("Sube un formato válido (.jpg, .png, .kml o .kmz)");
+                return;
+            }
+
+            document.getElementById('kmz-default-state').classList.add('hidden');
+            document.getElementById('kmz-loading-state').classList.remove('hidden');
+
+            setTimeout(() => {
+                document.getElementById('kmz-loading-state').classList.add('hidden');
+                document.getElementById('kmz-success-state').classList.remove('hidden');
+                document.getElementById('kmz-file-name').innerText = file.name;
+                
+                // Mostrar polígono IA simulado
+                const terrainLayer = document.getElementById('layer-uploaded-terrain');
+                if(terrainLayer) {
+                    terrainLayer.classList.remove('opacity-0', 'scale-110');
+                    terrainLayer.classList.add('opacity-100', 'scale-100');
+                }
+
+                // SI ES IMAGEN, APLICARLA AL FONDO DE LAS CAPAS
+                if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const customUrl = `url('${e.target.result}')`;
+                        document.getElementById('layer-rgb').style.backgroundImage = customUrl;
+                        document.getElementById('layer-ndvi-bg').style.backgroundImage = customUrl;
+                        document.getElementById('layer-thermal-bg').style.backgroundImage = customUrl;
+                        document.getElementById('layer-lidar-bg').style.backgroundImage = customUrl;
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+                setDashboardLayer('rgb'); // Forzar volver al RGB para ver el cambio
+                
+            }, 1800);
+        }
+
+        function resetKMZUpload() {
+            document.getElementById('kmz-file-input').value = '';
+            document.getElementById('kmz-success-state').classList.add('hidden');
+            document.getElementById('kmz-default-state').classList.remove('hidden');
+            
+            const terrainLayer = document.getElementById('layer-uploaded-terrain');
+            if(terrainLayer) {
+                terrainLayer.classList.add('opacity-0', 'scale-110');
+                terrainLayer.classList.remove('opacity-100', 'scale-100');
+            }
+        }
+
+        // Drag & Drop
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropzone = document.getElementById('kmz-dropzone');
+            if(dropzone) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+                });
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, () => dropzone.classList.add('border-emerald-500', 'bg-slate-700/50'));
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, () => dropzone.classList.remove('border-emerald-500', 'bg-slate-700/50'));
+                });
+                dropzone.addEventListener('drop', (e) => {
+                    handleKMZUpload(e.dataTransfer.files);
+                });
+            }
+        });
+        
+        // Inicializar calculo previo
+        updateHaCalc();
+    </script>
+</body>
+</html>
