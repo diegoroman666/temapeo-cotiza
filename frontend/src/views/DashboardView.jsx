@@ -46,19 +46,20 @@ export default function DashboardView() {
   }, [index, hasItems]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <section className="h-[calc(100vh-64px)] flex flex-col md:flex-row bg-slate-900 text-white overflow-hidden animate-in">
+    <section className="flex flex-col md:flex-row md:h-[calc(100vh-64px)] bg-slate-900 text-white md:overflow-hidden animate-in">
       {/* ===== Sidebar ===== */}
-      <div className="w-full md:w-80 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col z-20 shadow-2xl shrink-0">
-        <div className="p-6 border-b border-slate-800">
-          <h2 className="text-xl font-bold flex items-center">
+      <div className="w-full md:w-80 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col z-20 shadow-2xl shrink-0 md:overflow-y-auto">
+        <div className="px-4 py-4 md:p-6 md:border-b border-slate-800">
+          <h2 className="text-lg md:text-xl font-bold flex items-center">
             <Monitor className="text-emerald-500 w-6 h-6 mr-2" /> Visor GIS TeMapeo
           </h2>
-          <p className="text-xs text-slate-400 mt-1">Entregables reales por tipo de capa</p>
+          <p className="text-xs text-slate-400 mt-1 hidden md:block">Entregables reales por tipo de capa</p>
         </div>
 
-        <div className="p-4 md:p-6 flex-1 overflow-y-auto">
-          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Capas de datos</h3>
-          <div className="space-y-3">
+        <div className="px-4 pb-4 md:p-6 md:flex-1 md:overflow-y-auto">
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 md:mb-4 hidden md:block">Capas de datos</h3>
+          {/* Capas: chips horizontales en móvil, lista vertical en escritorio */}
+          <div className="flex md:flex-col gap-2 md:gap-3 overflow-x-auto md:overflow-visible -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar">
             {GIS_LAYERS.map((l) => {
               const Icon = ICONS[l.iconKey]
               const isActive = activeId === l.id
@@ -66,28 +67,28 @@ export default function DashboardView() {
                 <button
                   key={l.id}
                   onClick={() => selectLayer(l.id)}
-                  className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${
-                    isActive ? 'bg-slate-800 border-slate-600' : 'bg-transparent border-transparent hover:bg-slate-800/50'
+                  className={`shrink-0 md:w-full flex items-center gap-2 md:gap-3 md:justify-between p-2.5 md:p-3 rounded-lg border transition-all ${
+                    isActive ? 'bg-slate-800 border-slate-600' : 'bg-slate-800/40 md:bg-transparent border-slate-700/50 md:border-transparent hover:bg-slate-800/50'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className={`${l.accent} p-2 rounded text-white`}>
+                  <div className="flex items-center gap-2 md:space-x-3">
+                    <div className={`${l.accent} p-1.5 md:p-2 rounded text-white`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="text-left">
-                      <span className="block text-sm font-semibold">{l.label}</span>
+                      <span className="block text-sm font-semibold whitespace-nowrap">{l.label}</span>
                       <span className="block text-[0.7rem] text-slate-500">
                         {l.items.length > 0 ? `${l.items.length} imagen${l.items.length > 1 ? 'es' : ''}` : 'Sin muestras'}
                       </span>
                     </div>
                   </div>
-                  <div className={`w-3 h-3 rounded-full ${isActive ? `bg-emerald-500 ${l.ring}` : 'bg-slate-700'}`}></div>
+                  <div className={`hidden md:block w-3 h-3 rounded-full ${isActive ? `bg-emerald-500 ${l.ring}` : 'bg-slate-700'}`}></div>
                 </button>
               )
             })}
           </div>
 
-          <div className="mt-8 bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+          <div className="mt-4 md:mt-8 bg-slate-800/50 border border-slate-700 rounded-xl p-4 hidden md:block">
             <p className="text-xs text-slate-400 leading-relaxed">
               Imágenes obtenidas de la galería de <span className="text-emerald-400 font-semibold">temapeo.com</span>.
               Selecciona una capa y usa las flechas o las miniaturas para recorrer los entregables.
@@ -97,7 +98,7 @@ export default function DashboardView() {
       </div>
 
       {/* ===== Map / Viewer Area ===== */}
-      <div className="flex-1 relative bg-slate-950 flex flex-col overflow-hidden">
+      <div className="flex-1 relative bg-slate-950 flex flex-col overflow-hidden h-[70vh] md:h-auto">
         {hasItems ? (
           <>
             {/* Visor principal */}
