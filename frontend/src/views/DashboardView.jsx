@@ -1,215 +1,243 @@
-import { useState, useRef, useEffect } from 'react'
-import { Monitor, Image, Leaf, Layers, Flame, UploadCloud, Loader2, CheckCircle2, Cpu } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import {
+  Monitor, Image, Leaf, Layers, Flame,
+  ChevronLeft, ChevronRight, Maximize2, X, Loader2, ImageOff,
+} from 'lucide-react'
+import { GIS_LAYERS } from '../data/gisLayers'
 
-const LAYERS = [
-  { id: 'rgb', label: 'Ortomosaico RGB', name: 'Ortomosaico RGB', icon: Image, iconBg: 'bg-blue-500' },
-  { id: 'ndvi', label: 'Mapa NDVI', name: 'Índice NDVI (Vigor)', icon: Leaf, iconBg: 'bg-emerald-500' },
-  { id: 'lidar', label: 'MDT LiDAR', name: 'Modelo Elevación LiDAR', icon: Layers, iconBg: 'bg-purple-500' },
-  { id: 'thermal', label: 'Mapa Térmico', name: 'Mapa Térmico Radiométrico', icon: Flame, iconBg: 'bg-orange-500' },
-]
-
-const BASE_IMG = 'https://images.unsplash.com/photo-1590682680695-02b1c4c1143c?w=1600&q=80'
+const ICONS = { image: Image, leaf: Leaf, layers: Layers, flame: Flame }
 
 export default function DashboardView() {
-  const [activeLayer, setActiveLayer] = useState('rgb')
-  const [uploadState, setUploadState] = useState('default')
-  const [fileName, setFileName] = useState('')
-  const [bgImg, setBgImg] = useState(BASE_IMG)
-  const [terrainVisible, setTerrainVisible] = useState(false)
-  const fileInputRef = useRef(null)
-  const dropzoneRef = useRef(null)
+  const [activeId, setActiveId] = useState('rgb')
+  const [index, setIndex] = useState(0)
+  const [loaded, setLoaded] = useState(false)
+  const [lightbox, setLightbox] = useState(false)
 
-  const activeLayerData = LAYERS.find((l) => l.id === activeLayer)
+  const layer = GIS_LAYERS.find((l) => l.id === activeId)
+  const items = layer.items
+  const current = items[index] || null
+  const hasItems = items.length > 0
 
-  const handleUpload = (files) => {
-    if (!files || files.length === 0) return
-    const file = files[0]
-    const ext = file.name.split('.').pop().toLowerCase()
-    if (!['kml', 'kmz', 'jpg', 'jpeg', 'png'].includes(ext)) {
-      alert('Sube un formato válido (.jpg, .png, .kml o .kmz)')
-      return
-    }
-    setUploadState('loading')
-    setFileName(file.name)
-
-    if (['jpg', 'jpeg', 'png'].includes(ext)) {
-      const reader = new FileReader()
-      reader.onload = (e) => setBgImg(e.target.result)
-      reader.readAsDataURL(file)
-    }
-
-    setTimeout(() => {
-      setUploadState('success')
-      setTerrainVisible(true)
-      setActiveLayer('rgb')
-    }, 1800)
+  // Al cambiar de capa, reinicia índice y estado de carga
+  const selectLayer = (id) => {
+    setActiveId(id)
+    setIndex(0)
+    setLoaded(false)
+    setLightbox(false)
   }
 
-  const resetUpload = () => {
-    if (fileInputRef.current) fileInputRef.current.value = ''
-    setUploadState('default')
-    setBgImg(BASE_IMG)
-    setTerrainVisible(false)
+  const goTo = (i) => {
+    if (!hasItems) return
+    const n = (i + items.length) % items.length
+    setIndex(n)
+    setLoaded(false)
   }
 
+  // Navegación con teclado dentro del visor / lightbox
   useEffect(() => {
-    const dz = dropzoneRef.current
-    if (!dz) return
-    const prevent = (e) => { e.preventDefault(); e.stopPropagation() }
-    const onEnter = () => dz.classList.add('border-emerald-500', 'bg-slate-700/50')
-    const onLeave = () => dz.classList.remove('border-emerald-500', 'bg-slate-700/50')
-    const onDrop = (e) => { onLeave(); handleUpload(e.dataTransfer.files) }
-
-    dz.addEventListener('dragenter', prevent)
-    dz.addEventListener('dragover', (e) => { prevent(e); onEnter() })
-    dz.addEventListener('dragleave', onLeave)
-    dz.addEventListener('drop', (e) => { prevent(e); onDrop(e) })
-    return () => {
-      dz.removeEventListener('dragenter', prevent)
-      dz.removeEventListener('dragover', prevent)
-      dz.removeEventListener('dragleave', onLeave)
-      dz.removeEventListener('drop', onDrop)
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightbox(false)
+      if (!hasItems) return
+      if (e.key === 'ArrowRight') goTo(index + 1)
+      if (e.key === 'ArrowLeft') goTo(index - 1)
     }
-  }, [])
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [index, hasItems]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <section className="h-[calc(100vh-64px)] flex flex-col md:flex-row bg-slate-900 text-white overflow-hidden animate-in">
-      {/* Sidebar */}
-      <div className="w-full md:w-80 bg-slate-900 border-r border-slate-800 flex flex-col z-20 shadow-2xl relative">
+      {/* ===== Sidebar ===== */}
+      <div className="w-full md:w-80 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col z-20 shadow-2xl shrink-0">
         <div className="p-6 border-b border-slate-800">
           <h2 className="text-xl font-bold flex items-center">
-            <Monitor className="text-emerald-500 w-6 h-6 mr-2" /> Visor TeMapeo
+            <Monitor className="text-emerald-500 w-6 h-6 mr-2" /> Visor GIS TeMapeo
           </h2>
-          <p className="text-xs text-slate-400 mt-1">Sube una foto y prueba las capas</p>
+          <p className="text-xs text-slate-400 mt-1">Entregables reales por tipo de capa</p>
         </div>
 
-        <div className="p-6 flex-1 overflow-y-auto">
-          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Capas de Datos</h3>
+        <div className="p-4 md:p-6 flex-1 overflow-y-auto">
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Capas de datos</h3>
           <div className="space-y-3">
-            {LAYERS.map((layer) => {
-              const Icon = layer.icon
-              const isActive = activeLayer === layer.id
+            {GIS_LAYERS.map((l) => {
+              const Icon = ICONS[l.iconKey]
+              const isActive = activeId === l.id
               return (
                 <button
-                  key={layer.id}
-                  onClick={() => setActiveLayer(layer.id)}
+                  key={l.id}
+                  onClick={() => selectLayer(l.id)}
                   className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${
                     isActive ? 'bg-slate-800 border-slate-600' : 'bg-transparent border-transparent hover:bg-slate-800/50'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`${layer.iconBg} p-2 rounded text-white`}>
+                    <div className={`${l.accent} p-2 rounded text-white`}>
                       <Icon className="w-4 h-4" />
                     </div>
-                    <span className="text-sm font-semibold">{layer.label}</span>
+                    <div className="text-left">
+                      <span className="block text-sm font-semibold">{l.label}</span>
+                      <span className="block text-[0.7rem] text-slate-500">
+                        {l.items.length > 0 ? `${l.items.length} imagen${l.items.length > 1 ? 'es' : ''}` : 'Sin muestras'}
+                      </span>
+                    </div>
                   </div>
-                  <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'bg-slate-700'}`}></div>
+                  <div className={`w-3 h-3 rounded-full ${isActive ? `bg-emerald-500 ${l.ring}` : 'bg-slate-700'}`}></div>
                 </button>
               )
             })}
           </div>
 
-          {/* File upload */}
-          <div className="mt-8">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Procesa tu terreno</h3>
-            <div
-              ref={dropzoneRef}
-              className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl text-center border-dashed transition-all relative"
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".kml,.kmz,.jpg,.jpeg,.png"
-                className="hidden"
-                onChange={(e) => handleUpload(e.target.files)}
-              />
-
-              {uploadState === 'default' && (
-                <div>
-                  <UploadCloud className="w-6 h-6 mx-auto mb-2 text-slate-400" />
-                  <p className="text-sm font-bold text-slate-200">Inserta tu Imagen / KML</p>
-                  <p className="text-xs text-slate-500 mt-1 mb-3">Formatos: .jpg, .png, .kmz</p>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-slate-700 hover:bg-emerald-600 text-xs px-4 py-2 rounded font-semibold transition-colors cursor-pointer relative z-10 text-white"
-                  >
-                    Examinar Archivos
-                  </button>
-                </div>
-              )}
-
-              {uploadState === 'loading' && (
-                <div className="py-2">
-                  <Loader2 className="w-6 h-6 mx-auto mb-2 text-emerald-500 animate-spin" />
-                  <p className="text-sm font-bold text-emerald-400">Procesando archivo...</p>
-                  <p className="text-xs text-slate-400 mt-1">Generando capas con IA</p>
-                </div>
-              )}
-
-              {uploadState === 'success' && (
-                <div className="py-2">
-                  <CheckCircle2 className="w-6 h-6 mx-auto mb-2 text-emerald-500" />
-                  <p className="text-sm font-bold text-slate-200 truncate px-2">{fileName}</p>
-                  <p className="text-xs text-emerald-400 mt-1 font-semibold">¡Capas generadas!</p>
-                  <button onClick={resetUpload} className="text-xs text-slate-500 mt-3 underline hover:text-slate-300 relative z-10">
-                    Subir otro archivo
-                  </button>
-                </div>
-              )}
-            </div>
+          <div className="mt-8 bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Imágenes obtenidas de la galería de <span className="text-emerald-400 font-semibold">temapeo.com</span>.
+              Selecciona una capa y usa las flechas o las miniaturas para recorrer los entregables.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Map Area */}
-      <div className="flex-1 relative bg-slate-950 flex items-center justify-center overflow-hidden">
-        {/* RGB layer */}
-        <div
-          className={`absolute inset-0 transition-all duration-1000 bg-cover bg-center ${activeLayer === 'rgb' ? 'opacity-50' : 'opacity-0'} mix-blend-luminosity grayscale-[30%] sepia-[20%]`}
-          style={{ backgroundImage: `url('${bgImg}')` }}
-        />
+      {/* ===== Map / Viewer Area ===== */}
+      <div className="flex-1 relative bg-slate-950 flex flex-col overflow-hidden">
+        {hasItems ? (
+          <>
+            {/* Visor principal */}
+            <div className="flex-1 relative flex items-center justify-center overflow-hidden">
+              {!loaded && (
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                </div>
+              )}
 
-        {/* NDVI layer */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 ${activeLayer === 'ndvi' ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute inset-0 bg-gradient-to-tr from-red-900/60 via-yellow-600/60 to-emerald-600/60 mix-blend-overlay z-10"></div>
-          <div className="absolute inset-0 bg-cover bg-center opacity-40 grayscale" style={{ backgroundImage: `url('${bgImg}')` }}></div>
-        </div>
+              <img
+                key={current.src}
+                src={current.src}
+                alt={current.title}
+                onLoad={() => setLoaded(true)}
+                className={`max-w-full max-h-full object-contain transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              />
 
-        {/* LiDAR layer */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 bg-slate-950 ${activeLayer === 'lidar' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, #a855f7 1px, transparent 1px)', backgroundSize: '15px 15px', opacity: 0.5, transform: 'perspective(500px) rotateX(60deg) scale(2)' }}></div>
-          <div className="absolute inset-0 bg-cover bg-center opacity-20 sepia invert" style={{ backgroundImage: `url('${bgImg}')` }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center bg-slate-900/80 px-6 py-4 rounded-xl border border-purple-500/30 backdrop-blur z-10">
-            <Layers className="text-purple-500 w-12 h-12 mx-auto mb-2 animate-pulse" />
-            <p className="text-purple-300 font-mono text-sm uppercase tracking-widest">Modelo de Elevación</p>
-          </div>
-        </div>
+              {/* Badge de capa */}
+              <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700 px-4 py-2 rounded-lg text-sm shadow-xl z-20">
+                <span className={`font-bold uppercase tracking-wider ${layer.text}`}>{layer.name}</span>
+              </div>
 
-        {/* Thermal layer */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 ${activeLayer === 'thermal' ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-700/80 via-yellow-500/80 to-red-600/80 mix-blend-overlay z-10"></div>
-          <div className="absolute inset-0 bg-cover bg-center opacity-40 grayscale invert" style={{ backgroundImage: `url('${bgImg}')` }}></div>
-        </div>
+              {/* Botón pantalla completa */}
+              <button
+                onClick={() => setLightbox(true)}
+                className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur border border-slate-700 p-2 rounded-lg hover:bg-slate-800 transition-colors z-20"
+                title="Ver en pantalla completa"
+              >
+                <Maximize2 className="w-5 h-5 text-slate-200" />
+              </button>
 
-        {/* Terrain polygon overlay */}
-        {terrainVisible && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
-            <svg className="w-3/4 h-3/4 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)] mb-4" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <polygon points="10,20 90,10 80,90 20,80" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" strokeWidth="1.5" strokeDasharray="4" />
-            </svg>
-            <div className="absolute bg-slate-900/80 backdrop-blur-sm text-emerald-400 text-xs px-4 py-2 rounded-full border border-emerald-500/50 shadow-lg font-mono tracking-widest uppercase flex items-center">
-              <Cpu className="w-3 h-3 mr-2" /> Área Escaneada
+              {/* Flechas */}
+              {items.length > 1 && (
+                <>
+                  <button
+                    onClick={() => goTo(index - 1)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-slate-900/70 hover:bg-emerald-600 border border-slate-700 p-2 rounded-full transition-colors z-20"
+                    title="Anterior"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => goTo(index + 1)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-900/70 hover:bg-emerald-600 border border-slate-700 p-2 rounded-full transition-colors z-20"
+                    title="Siguiente"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+
+              {/* Pie con descripción */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-5 pt-12 z-20">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{current.title}</h3>
+                    <p className="text-sm text-slate-300 max-w-2xl">{current.desc}</p>
+                  </div>
+                  <span className="text-xs font-mono text-slate-400 bg-slate-900/80 px-3 py-1 rounded-full border border-slate-700 shrink-0">
+                    {index + 1} / {items.length}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tira de miniaturas */}
+            {items.length > 1 && (
+              <div className="bg-slate-900 border-t border-slate-800 p-3 flex gap-3 overflow-x-auto no-scrollbar shrink-0">
+                {items.map((it, i) => (
+                  <button
+                    key={it.thumb}
+                    onClick={() => goTo(i)}
+                    className={`relative h-16 w-24 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
+                      i === index ? 'border-emerald-500 scale-105' : 'border-slate-700 opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={it.thumb} alt={it.title} className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          /* Estado vacío (p.ej. Térmico sin muestras) */
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="text-center max-w-md">
+              <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <ImageOff className="w-8 h-8 text-slate-500" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-200 mb-2">Aún no hay muestras de {layer.label}</h3>
+              <p className="text-slate-400 text-sm">
+                Todavía no publicamos imágenes de esta capa en la galería. Escríbenos si necesitas un levantamiento
+                {layer.id === 'thermal' ? ' termográfico' : ''} para tu campo.
+              </p>
             </div>
           </div>
         )}
-
-        {/* Active layer label */}
-        <div className="absolute inset-0 border border-slate-700/30 m-8 rounded-2xl pointer-events-none z-30">
-          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur border border-slate-700 px-4 py-2 rounded-lg text-sm shadow-xl">
-            <span className="text-emerald-400 font-bold uppercase tracking-wider">{activeLayerData?.name}</span>
-          </div>
-        </div>
       </div>
+
+      {/* ===== Lightbox ===== */}
+      {lightbox && current && (
+        <div
+          className="fixed inset-0 z-[120] bg-black/95 flex items-center justify-center p-4 animate-in"
+          onClick={() => setLightbox(false)}
+        >
+          <button
+            onClick={() => setLightbox(false)}
+            className="absolute top-5 right-5 text-white/70 hover:text-white z-10"
+            aria-label="Cerrar"
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          {items.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); goTo(index - 1) }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white z-10"
+              >
+                <ChevronLeft className="w-10 h-10" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); goTo(index + 1) }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white z-10"
+              >
+                <ChevronRight className="w-10 h-10" />
+              </button>
+            </>
+          )}
+
+          <figure className="max-w-6xl max-h-[90vh] flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            <img src={current.full} alt={current.title} className="max-w-full max-h-[80vh] object-contain rounded-lg" />
+            <figcaption className="mt-4 text-center">
+              <p className="text-white font-bold">{current.title}</p>
+              <p className="text-slate-400 text-sm max-w-2xl">{current.desc}</p>
+            </figcaption>
+          </figure>
+        </div>
+      )}
     </section>
   )
 }
